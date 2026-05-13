@@ -9,7 +9,7 @@ This project analyzes customer retention challenges and revenue performance for 
 ---
 
 ## 🔗 Preview Dashboard
-- [Overview Dashboard](Images/Overview.png)
+[Overview Dashboard](Images/Overview.png)
 
 ---
 
