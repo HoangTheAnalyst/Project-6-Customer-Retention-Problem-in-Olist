@@ -1,0 +1,189 @@
+table dim_orders_payments_reviews
+	lineageTag: 49c63672-fc92-4917-bfd3-2ce24961836c
+
+	column order_id
+		dataType: string
+		lineageTag: cae0b266-cae6-42e3-a176-c687bb63b14f
+		summarizeBy: none
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_id
+		dataType: string
+		lineageTag: fe5eddd5-bd1d-4300-b4c6-e7ac119230a7
+		summarizeBy: none
+		sourceColumn: customer_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_status
+		dataType: string
+		lineageTag: 7e65001a-ecd9-465a-bed1-6a97cc203214
+		summarizeBy: none
+		sourceColumn: order_status
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_purchase_timestamp
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: d204c0aa-a11b-4d45-bf79-ff7bf4813453
+		summarizeBy: none
+		sourceColumn: order_purchase_timestamp
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column order_approved_at
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: d9af8c95-32c9-41be-846c-3a69833ed84b
+		summarizeBy: none
+		sourceColumn: order_approved_at
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column order_delivered_carrier_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 528193a3-9ba1-4ac5-9da3-486601c50fb4
+		summarizeBy: none
+		sourceColumn: order_delivered_carrier_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column order_delivered_customer_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: a3eae798-cd78-4c31-a1c0-455d9559a651
+		summarizeBy: none
+		sourceColumn: order_delivered_customer_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column order_estimated_delivery_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 0b0b6142-be29-4c1b-88ac-68c69f04f4db
+		summarizeBy: none
+		sourceColumn: order_estimated_delivery_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column most_used_payment_type
+		dataType: string
+		lineageTag: e89b5a03-9d4f-4517-8772-046730228572
+		summarizeBy: none
+		sourceColumn: most_used_payment_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_payment_value
+		dataType: decimal
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 863ad3b5-bf7b-4119-8eec-1878124de097
+		summarizeBy: sum
+		sourceColumn: total_payment_value
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column max_installments
+		dataType: int64
+		formatString: 0
+		lineageTag: 2448f900-16bd-44db-8deb-3fea657ac168
+		summarizeBy: sum
+		sourceColumn: max_installments
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_reviews
+		dataType: int64
+		formatString: 0
+		lineageTag: 1019acfe-2edf-49ba-b239-f87cd39ef9cb
+		summarizeBy: sum
+		sourceColumn: total_reviews
+
+		annotation SummarizationSetBy = Automatic
+
+	column avg_review_score
+		dataType: double
+		lineageTag: 68033baa-ebb9-4e5c-b6dc-09e3197dbe63
+		summarizeBy: sum
+		sourceColumn: avg_review_score
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column min_review_creation_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: f7d2b955-532b-4690-bc9f-60f69a6fa0b7
+		summarizeBy: none
+		sourceColumn: min_review_creation_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column min_review_answer_timestamp
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 27dba106-43a8-4104-8a05-28554ba81963
+		summarizeBy: none
+		sourceColumn: min_review_answer_timestamp
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Round Down Stars' = ROUNDDOWN(dim_orders_payments_reviews[avg_review_score],0)
+		lineageTag: 3c20d9f1-45a5-4347-a778-e332cc0b23b0
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Lead Time' = DATEDIFF(dim_orders_payments_reviews[order_purchase_timestamp],dim_orders_payments_reviews[order_delivered_customer_date],DAY)
+		formatString: 0
+		lineageTag: 88acb42e-a2ec-467e-8289-14dbc468a712
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Out of Estimation Time' = DATEDIFF(dim_orders_payments_reviews[order_delivered_customer_date],dim_orders_payments_reviews[order_estimated_delivery_date],DAY)
+		formatString: 0
+		lineageTag: 3209a4d4-6957-4521-9676-d0a40ca3078b
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_orders_payments_reviews = m
+		mode: import
+		source =
+				let
+				    Source = MySQL.Database("127.0.0.1", "olist", [ReturnSingleDatabase=true]),
+				    olist_dim_orders_payments_reviews = Source{[Schema="olist",Item="dim_orders_payments_reviews"]}[Data],
+				    #"Replaced Value" = Table.ReplaceValue(olist_dim_orders_payments_reviews,"_"," ",Replacer.ReplaceText,{"order_status", "most_used_payment_type"}),
+				    #"Capitalized Each Word" = Table.TransformColumns(#"Replaced Value",{{"order_status", Text.Proper, type text}, {"most_used_payment_type", Text.Proper, type text}}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Capitalized Each Word",{{"order_purchase_timestamp", type date}, {"order_approved_at", type date}, {"order_delivered_carrier_date", type date}, {"order_delivered_customer_date", type date}, {"order_estimated_delivery_date", type date}, {"min_review_creation_date", type date}, {"min_review_answer_timestamp", type date}, {"total_payment_value", Currency.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

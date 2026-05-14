@@ -1,0 +1,61 @@
+table dim_geolocation
+	lineageTag: 277dd3d6-248c-4d6f-9c4f-900b479cf392
+
+	column geolocation_zip_code_prefix
+		dataType: string
+		lineageTag: 5692c926-26b2-46cc-9e56-e0c98a7083c6
+		summarizeBy: none
+		sourceColumn: geolocation_zip_code_prefix
+
+		annotation SummarizationSetBy = Automatic
+
+	column avg_lat
+		dataType: double
+		lineageTag: ab245634-fae7-4ebf-8c45-8a73df702588
+		summarizeBy: none
+		sourceColumn: avg_lat
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column avg_lng
+		dataType: double
+		lineageTag: 7028b142-4b97-40d9-8ac7-0cc067ea33c3
+		summarizeBy: none
+		sourceColumn: avg_lng
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column geolocation_city
+		dataType: string
+		lineageTag: 7e0f6a71-16f8-45a8-b6fb-bf57e634df1a
+		summarizeBy: none
+		sourceColumn: geolocation_city
+
+		annotation SummarizationSetBy = Automatic
+
+	column geolocation_state
+		dataType: string
+		lineageTag: f6b0db10-5c7d-4dd6-9ae8-da2a93a29eb6
+		summarizeBy: none
+		sourceColumn: geolocation_state
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_geolocation = m
+		mode: import
+		source =
+				let
+				    Source = MySQL.Database("127.0.0.1", "olist", [ReturnSingleDatabase=true]),
+				    olist_dim_geolocation = Source{[Schema="olist",Item="dim_geolocation"]}[Data],
+				    #"Capitalized Each Word" = Table.TransformColumns(olist_dim_geolocation,{{"geolocation_city", Text.Proper, type text}})
+				in
+				    #"Capitalized Each Word"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

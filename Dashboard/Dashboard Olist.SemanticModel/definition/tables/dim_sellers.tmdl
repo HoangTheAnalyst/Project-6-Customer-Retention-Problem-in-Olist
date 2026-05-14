@@ -1,0 +1,49 @@
+table dim_sellers
+	lineageTag: 982552f0-1058-4337-9eb4-03e0031a0e05
+
+	column seller_id
+		dataType: string
+		lineageTag: dcef82b5-6399-4974-8cee-b2d264e6830a
+		summarizeBy: none
+		sourceColumn: seller_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column seller_zip_code_prefix
+		dataType: string
+		lineageTag: 275684b3-d09f-435e-9134-c8b7331b19a2
+		summarizeBy: none
+		sourceColumn: seller_zip_code_prefix
+
+		annotation SummarizationSetBy = Automatic
+
+	column seller_city
+		dataType: string
+		lineageTag: 27a2afb6-e9f1-404d-9d4e-426d600100d5
+		summarizeBy: none
+		sourceColumn: seller_city
+
+		annotation SummarizationSetBy = Automatic
+
+	column seller_state
+		dataType: string
+		lineageTag: 9c4e801f-6629-4264-a465-a11a427fab7f
+		summarizeBy: none
+		sourceColumn: seller_state
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_sellers = m
+		mode: import
+		source =
+				let
+				    Source = MySQL.Database("127.0.0.1", "olist", [ReturnSingleDatabase=true]),
+				    olist_dim_sellers = Source{[Schema="olist",Item="dim_sellers"]}[Data],
+				    #"Capitalized Each Word" = Table.TransformColumns(olist_dim_sellers,{{"seller_city", Text.Proper, type text}})
+				in
+				    #"Capitalized Each Word"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

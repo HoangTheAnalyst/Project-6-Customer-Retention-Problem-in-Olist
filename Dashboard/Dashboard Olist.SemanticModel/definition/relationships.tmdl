@@ -1,0 +1,66 @@
+relationship AutoDetected_0df3b364-f6aa-4119-8842-1d4ce1ce35ca
+	fromColumn: fact_sales.product_id
+	toColumn: dim_products.product_id
+
+relationship AutoDetected_a7b8b055-57f9-437a-9f91-9d539df947e5
+	fromColumn: fact_sales.seller_id
+	toColumn: dim_sellers.seller_id
+
+relationship 548653af-c497-f178-b8da-bb915d875fdb
+	fromColumn: dim_sellers.seller_zip_code_prefix
+	toColumn: dim_geolocation.geolocation_zip_code_prefix
+
+relationship f7843a9b-cef6-93ae-a70a-f33f9e7b8981
+	isActive: false
+	fromColumn: dim_customers.customer_zip_code_prefix
+	toColumn: dim_geolocation.geolocation_zip_code_prefix
+
+relationship AutoDetected_c32690f1-d976-436b-9784-4675a76b4702
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: dim_orders_payments_reviews.customer_id
+	toColumn: dim_customers.customer_id
+
+relationship AutoDetected_e7ad4898-a2b7-4c81-a556-7a4d41206b8d
+	fromColumn: fact_sales.order_id
+	toColumn: dim_orders_payments_reviews.order_id
+
+relationship 68396c7b-b1a1-ae33-edc1-3282e7c4d375
+	isActive: false
+	fromColumn: dim_orders_payments_reviews.order_approved_at
+	toColumn: dim_date.Date
+
+relationship 4d116b88-b2ec-722b-1478-e010edefcf7b
+	isActive: false
+	fromColumn: dim_orders_payments_reviews.order_delivered_carrier_date
+	toColumn: dim_date.Date
+
+relationship 3de18bb0-267d-485a-4d7e-1005fe95d26d
+	isActive: false
+	fromColumn: dim_orders_payments_reviews.order_delivered_customer_date
+	toColumn: dim_date.Date
+
+relationship 70566a84-11e2-532f-1303-faf4f7abf246
+	isActive: false
+	fromColumn: dim_orders_payments_reviews.order_estimated_delivery_date
+	toColumn: dim_date.Date
+
+relationship a06e1564-3c0b-a36d-c253-d627de07d2c5
+	fromColumn: dim_orders_payments_reviews.order_purchase_timestamp
+	toColumn: dim_date.Date
+
+relationship 20e82716-846c-962d-f660-6d16b4553347
+	isActive: false
+	fromColumn: dim_orders_payments_reviews.min_review_answer_timestamp
+	toColumn: dim_date.Date
+
+relationship aad5bdba-feaf-cbbe-f6b0-47b66588782c
+	isActive: false
+	fromColumn: dim_orders_payments_reviews.min_review_creation_date
+	toColumn: dim_date.Date
+
+relationship 24e59dbd-3fe0-ae6e-676e-e5601c4def2e
+	isActive: false
+	fromColumn: fact_sales.shipping_limit_date
+	toColumn: dim_date.Date
+

@@ -1,0 +1,101 @@
+table dim_products
+	lineageTag: 5181d75d-e3c8-43dc-8ba4-e8ec7d15b1c0
+
+	column product_id
+		dataType: string
+		lineageTag: 5cb93100-e1e9-49a0-a440-b0d142335ae0
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_category_name
+		dataType: string
+		lineageTag: 9a1b387a-84b3-41aa-8bfc-7e9d7bcab65c
+		summarizeBy: none
+		sourceColumn: product_category_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_name_length
+		dataType: int64
+		formatString: 0
+		lineageTag: 1d56cc8e-69e2-4011-934d-49b25bf0e062
+		summarizeBy: none
+		sourceColumn: product_name_length
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_description_length
+		dataType: int64
+		formatString: 0
+		lineageTag: 7fabf8a1-1ca4-4f2c-85e8-d2702350741e
+		summarizeBy: none
+		sourceColumn: product_description_length
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_photos_qty
+		dataType: int64
+		formatString: 0
+		lineageTag: da3f5952-b16f-4daf-a514-487a676d177f
+		summarizeBy: none
+		sourceColumn: product_photos_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_weight_g
+		dataType: double
+		lineageTag: 4bbf1ecb-a859-4e5e-a7ed-a1019b301961
+		summarizeBy: none
+		sourceColumn: product_weight_g
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column product_length_cm
+		dataType: double
+		lineageTag: 3f4e1d00-cc1b-47d3-bd57-f4b1aae9e3e2
+		summarizeBy: none
+		sourceColumn: product_length_cm
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column product_height_cm
+		dataType: double
+		lineageTag: deb24636-9eac-4191-92d3-0555d4b4643c
+		summarizeBy: none
+		sourceColumn: product_height_cm
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column product_width_cm
+		dataType: double
+		lineageTag: 40afc14a-e01a-4eea-8a7e-4e61b944627d
+		summarizeBy: none
+		sourceColumn: product_width_cm
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition dim_products = m
+		mode: import
+		source =
+				let
+				    Source = MySQL.Database("127.0.0.1", "olist", [ReturnSingleDatabase=true]),
+				    olist_dim_products = Source{[Schema="olist",Item="dim_products"]}[Data],
+				    #"Replaced Value" = Table.ReplaceValue(olist_dim_products,"_"," ",Replacer.ReplaceText,{"product_category_name"}),
+				    #"Capitalized Each Word" = Table.TransformColumns(#"Replaced Value",{{"product_category_name", Text.Proper, type text}})
+				in
+				    #"Capitalized Each Word"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

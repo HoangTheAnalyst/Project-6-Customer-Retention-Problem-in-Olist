@@ -1,0 +1,207 @@
+table measure_table
+	lineageTag: 0ac2d376-678c-4bf7-b35f-c69152734d64
+
+	measure 'Total Confirmed Revenue' =
+			CALCULATE(
+			    SUM(fact_sales[total_price_items]),
+			    ALL(dim_orders_payments_reviews[order_status]),
+			    dim_orders_payments_reviews[order_status] = "Delivered"
+			)
+		formatString: #,0.00
+		lineageTag: 0aade045-2c58-4c9b-835d-73459adebfc4
+
+	measure 'Total Confirmed Customers' =
+			CALCULATE(
+			    DISTINCTCOUNT(dim_customers[customer_unique_id]),
+			    ALL(dim_orders_payments_reviews[order_status]),
+			    dim_orders_payments_reviews[order_status] = "Delivered"
+			)
+		formatString: 0
+		lineageTag: 4fd1746b-0d21-42f4-b9af-ef65e9306e2a
+
+	measure 'Total Confirmed Orders' =
+			CALCULATE(
+			    DISTINCTCOUNT(fact_sales[order_id]),
+			    ALL(dim_orders_payments_reviews[order_status]),
+			    dim_orders_payments_reviews[order_status] = "Delivered"
+			)
+		formatString: 0
+		lineageTag: a937da1b-a4fd-4639-a32d-36b7c1b27625
+
+	measure 'Total Confirmed Sellers' =
+			CALCULATE(
+			    DISTINCTCOUNT(fact_sales[seller_id])
+			)
+		formatString: 0
+		lineageTag: 53e26efa-e25c-4cce-9cb0-f8933fcd451b
+
+	measure AOV = DIVIDE([Total Confirmed Revenue],[Total Confirmed Orders],0)
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 17fba227-ce80-4fc9-ab1f-dd865d02e4fa
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure AOC = DIVIDE([Total Confirmed Orders],[Total Confirmed Customers],0)
+		lineageTag: 3aa959ca-4bca-4bfe-8d64-b01bc5b57151
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Average Rating Star' =
+			CALCULATE(
+			    AVERAGE(dim_orders_payments_reviews[avg_review_score]),
+			    ALL(dim_orders_payments_reviews[order_status]),
+			    dim_orders_payments_reviews[order_status] = "Delivered"
+			)
+		lineageTag: 0adf05d6-a514-4f53-856c-64c8e5204c5f
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Total_Order = DISTINCTCOUNT(fact_sales[order_id])
+		formatString: 0
+		lineageTag: 64f94351-8378-4804-b362-4e72c40c4d94
+
+	measure 'Avg Lead Time' =
+			CALCULATE(
+			    AVERAGEX(dim_orders_payments_reviews,
+			    DATEDIFF(dim_orders_payments_reviews[order_purchase_timestamp],dim_orders_payments_reviews[order_delivered_customer_date],
+			    DAY
+			    )),ALL(dim_orders_payments_reviews[order_status]),
+			    dim_orders_payments_reviews[order_status] = "Delivered")
+		lineageTag: cb6f9907-914b-4d1c-a78e-e5f5fe008880
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Count Rounddown Stars' =
+			CALCULATE(
+			    COUNT(dim_orders_payments_reviews[Round Down Stars]),
+			    ALL(dim_orders_payments_reviews[order_status]),
+			    dim_orders_payments_reviews[order_status] = "Delivered"
+			)
+		formatString: 0
+		lineageTag: 7137d80d-b0c8-4f8f-9683-98db9ce1e996
+
+	measure 'Most Bought Product' =
+			CALCULATE(
+			    COUNT(fact_sales[product_id]),
+			    ALL(dim_orders_payments_reviews[order_status]),
+			    dim_orders_payments_reviews[order_status] = "Delivered"
+			)
+		formatString: 0
+		lineageTag: 4eca4c7d-f66a-4f36-9492-f7214ed8cae6
+
+	measure 'P50 Lead Time' =
+			
+			PERCENTILEX.INC(
+			    FILTER(dim_orders_payments_reviews, NOT(ISBLANK([order_delivered_customer_date]))),
+			    dim_orders_payments_reviews[Lead Time],
+			    0.5
+			)
+		lineageTag: ca9eccd9-7790-4d33-ae84-7c91427d2798
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'P90 Lead Time' =
+			
+			PERCENTILEX.INC(
+			    FILTER(dim_orders_payments_reviews, NOT(ISBLANK([order_delivered_customer_date]))),
+			    dim_orders_payments_reviews[Lead Time],
+			    0.9
+			)
+		lineageTag: b3c3e0eb-eb4c-4e53-b8e3-5fd9bda96371
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'P95 Lead Time' =
+			
+			PERCENTILEX.INC(
+			    FILTER(dim_orders_payments_reviews, NOT(ISBLANK([order_delivered_customer_date]))),
+			    dim_orders_payments_reviews[Lead Time],
+			    0.95
+			)
+		lineageTag: ad4ebc99-ffd6-491b-a866-84a6badc58c5
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Revenue MA 7 Days' = ```
+			
+			VAR LastVisibleDate = MAX('dim_date'[Date])
+			RETURN
+			    AVERAGEX(
+			        DATESINPERIOD(
+			            'dim_date'[Date], 
+			            LastVisibleDate, 
+			            -7, 
+			            DAY
+			        ),
+			        [Total Confirmed Revenue]
+			    )
+			```
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 5966d196-03d3-45fe-b430-d736712c58c1
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Returning Customers (Confirmed)' = ```
+			
+			COUNTROWS(
+			    FILTER(
+			        VALUES(dim_customers[customer_unique_id]),
+			        CALCULATE(
+			            DISTINCTCOUNT(fact_sales[order_id]), 
+			            dim_orders_payments_reviews[order_status] = "delivered"
+			        ) >= 2
+			    )
+			)
+			```
+		formatString: 0
+		lineageTag: 61f649a4-efbf-403b-968b-94702df085ea
+
+	measure 'Retention Rate' =
+			
+			DIVIDE(
+			    [Returning Customers (Confirmed)],
+			    [Total Confirmed Customers],
+			    0
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 1896dfa0-e729-43d8-b2d7-99f2e76962bd
+
+	measure 'Freight Ratio' = DIVIDE(SUM(fact_sales[freight_value]),SUM(fact_sales[total_price_items]),0)
+		lineageTag: cbf5979c-9fd7-45ff-bc1d-0b5a876dc6e7
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Average Delay Time' = AVERAGE(dim_orders_payments_reviews[Out of Estimation Time])
+		lineageTag: d7085d22-6c2c-416b-a8bc-e535acf0da1b
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Color Logic' = ```
+			
+			VAR Avg_Retention = 0.03 
+			VAR Avg_Orders = 1000 
+			RETURN
+			    IF([Total Confirmed Orders] >= Avg_Orders && [Retention Rate] < Avg_Retention, 1,  
+			    IF([Total Confirmed Orders] >= Avg_Orders && [Retention Rate] >= Avg_Retention, 2, 
+			    3))
+			```
+		formatString: 0
+		lineageTag: 9c6503bb-5757-4c21-92d2-9fb9d846c455
+
+	column Column
+		formatString: 0
+		lineageTag: 00b0fabc-d7d5-4940-bc27-6b40a3db7371
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Column]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition measure_table = calculated
+		mode: import
+		source = Row("Column", BLANK())
+
+	annotation PBI_Id = 115daa8e54444907b690ac7f047e9cae
+
+	annotation 436ba87b-9c83-4389-a31b-ebd06a36be98 = {"Expression":""}
+

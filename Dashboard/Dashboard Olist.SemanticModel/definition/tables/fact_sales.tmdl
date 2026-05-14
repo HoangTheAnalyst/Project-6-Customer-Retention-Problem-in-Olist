@@ -1,0 +1,91 @@
+table fact_sales
+	lineageTag: 0ff213ab-b057-4484-80bd-2eacb761cb00
+
+	column order_id
+		dataType: string
+		lineageTag: e7bfba83-f027-418f-a3fb-b775beda57aa
+		summarizeBy: none
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_item_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 12d61d16-5652-4a06-9e1d-718c614523c1
+		summarizeBy: sum
+		sourceColumn: order_item_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_id
+		dataType: string
+		lineageTag: 4194136e-4a80-4c28-9bb0-69530f02576c
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column seller_id
+		dataType: string
+		lineageTag: fd6bbc2e-3d02-4e1f-ac0e-ecdd06eac131
+		summarizeBy: none
+		sourceColumn: seller_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column shipping_limit_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: b36a859f-adee-4cba-8441-11e1d97e024a
+		summarizeBy: none
+		sourceColumn: shipping_limit_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column price
+		dataType: decimal
+		lineageTag: bf3147ca-fe21-471d-8428-c10bf6aa769e
+		summarizeBy: sum
+		sourceColumn: price
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column freight_value
+		dataType: decimal
+		lineageTag: 1d44c3db-ecd2-457e-8d7c-28efe811ea01
+		summarizeBy: sum
+		sourceColumn: freight_value
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_price_items
+		dataType: decimal
+		lineageTag: e4ee6d60-f001-41dc-aca5-ea99f37226c8
+		summarizeBy: sum
+		sourceColumn: total_price_items
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition fact_sales = m
+		mode: import
+		source =
+				let
+				    Source = MySQL.Database("127.0.0.1", "olist", [ReturnSingleDatabase=true]),
+				    olist_fact_sales = Source{[Schema="olist",Item="fact_sales"]}[Data],
+				    #"Changed Type" = Table.TransformColumnTypes(olist_fact_sales,{{"shipping_limit_date", type date}, {"price", Currency.Type}, {"freight_value", Currency.Type}, {"total_price_items", Currency.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
