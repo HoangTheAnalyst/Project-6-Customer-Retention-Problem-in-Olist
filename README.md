@@ -101,8 +101,8 @@ Project 6 - Customer Retention Rate in Olist
 │   ├── Delete Orphan Records From Tables.sql
 │   └── Load Raw Olist.sql
 ├── Dashboard/
-│   ├── Overview Dashboard
-│   └── Customer Journey Analysis Dashboard
+│   ├── [Dashboard & Analysis in Power BI]
+│   
 ├── Dataset/
 │   ├── olist_customers_dataset.csv
 │   ├── olist_geolocation_dataset.csv
